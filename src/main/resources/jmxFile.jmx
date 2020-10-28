@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.1.1 r1855137">
+  <org.apache.jorphan.collections.HashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="ConfigTestPlan">
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+    </TestPlan>
+    <org.apache.jorphan.collections.HashTree>
+      <com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup guiclass="ThreadGroupGui" testclass="java.lang.ThreadGroup" testname="Sample Thread Group">
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <intProp name="LoopController.loops">10</intProp>
+        </elementProp>
+        <stringProp name="TargetLevel">10</stringProp>
+        <stringProp name="RampUp">30</stringProp>
+        <stringProp name="Steps">5</stringProp>
+        <stringProp name="Unit">S</stringProp>
+        <stringProp name="Hold">300</stringProp>
+      </com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup>
+      <org.apache.jorphan.collections.HashTree>
+        <HTTPSampler__ guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Configs/Users GET">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">config.lte.cx-shop-nonprod.us-east-1.aws.sysco.net</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/configs/users?userId=${queryParams}&amp;namespaces=MSS</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSampler__>
+        <org.apache.jorphan.collections.HashTree/>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="MarshalQueryParams">
+          <stringProp name="filename">src/it/resources/userid.csv</stringProp>
+          <stringProp name="TestPlan.comments">List of query params</stringProp>
+          <stringProp name="delimiter">\n</stringProp>
+          <stringProp name="variableNames">queryParams</stringProp>
+          <stringProp name="recycle">false</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <boolProp name="stopThread">true</boolProp>
+          <stringProp name="shareMode">shareMode.thread</stringProp>
+        </CSVDataSet>
+        <org.apache.jorphan.collections.HashTree/>
+      </org.apache.jorphan.collections.HashTree>
+    </org.apache.jorphan.collections.HashTree>
+  </org.apache.jorphan.collections.HashTree>
+</jmeterTestPlan>
