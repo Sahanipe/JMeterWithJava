@@ -7,16 +7,12 @@
       </elementProp>
     </TestPlan>
     <org.apache.jorphan.collections.HashTree>
-      <com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup guiclass="ThreadGroupGui" testclass="java.lang.ThreadGroup" testname="Sample Thread Group">
+      <com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup guiclass="ThreadGroupGui" testclass="java.lang.ThreadGroup" testname="CTG - config/users GET">
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <intProp name="LoopController.loops">10</intProp>
+          <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="TargetLevel">10</stringProp>
-        <stringProp name="RampUp">30</stringProp>
-        <stringProp name="Steps">5</stringProp>
-        <stringProp name="Unit">S</stringProp>
-        <stringProp name="Hold">300</stringProp>
+        <stringProp name="Unit">MS</stringProp>
       </com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup>
       <org.apache.jorphan.collections.HashTree>
         <HTTPSampler__ guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Configs/Users GET">
@@ -25,9 +21,14 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">config.lte.cx-shop-nonprod.us-east-1.aws.sysco.net</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/configs/users?userId=${queryParams}&amp;namespaces=MSS</stringProp>
+          <stringProp name="HTTPSampler.path">/configs/users/ACTIVE_ORDER_ID?userId=perfma048&amp;namespace=MSS</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
         </HTTPSampler__>
+        <org.apache.jorphan.collections.HashTree/>
+        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" enabled="true">
+          <stringProp name="throughput">16.6</stringProp>
+          <intProp name="calcMode">2</intProp>
+        </ConstantThroughputTimer>
         <org.apache.jorphan.collections.HashTree/>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="MarshalQueryParams">
           <stringProp name="filename">src/it/resources/userid.csv</stringProp>
@@ -39,6 +40,84 @@
           <boolProp name="stopThread">true</boolProp>
           <stringProp name="shareMode">shareMode.thread</stringProp>
         </CSVDataSet>
+        <org.apache.jorphan.collections.HashTree/>
+        <BackendListener testclass="org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient" testname="Backend Listner">
+          <elementProp name="arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="influxdbMetricsSender" elementType="Argument">
+                <stringProp name="Argument.name">influxdbMetricsSender</stringProp>
+                <stringProp name="Argument.value">org.apache.jmeter.visualizers.backend.influxdb.HttpMetricsSender</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="influxdbUrl" elementType="Argument">
+                <stringProp name="Argument.name">influxdbUrl</stringProp>
+                <stringProp name="Argument.value">http://cx.perf.cx-shop-nonprod.sysco-go.com:8086/write?db=jmeter</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="application" elementType="Argument">
+                <stringProp name="Argument.name">application</stringProp>
+                <stringProp name="Argument.value">MSS</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="measurement" elementType="Argument">
+                <stringProp name="Argument.name">measurement</stringProp>
+                <stringProp name="Argument.value">jmeter</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="summaryOnly" elementType="Argument">
+                <stringProp name="Argument.name">summaryOnly</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="samplersRegex" elementType="Argument">
+                <stringProp name="Argument.name">samplersRegex</stringProp>
+                <stringProp name="Argument.value">.*</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="percentiles" elementType="Argument">
+                <stringProp name="Argument.name">percentiles</stringProp>
+                <stringProp name="Argument.value">99;95;90</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="testTitle" elementType="Argument">
+                <stringProp name="Argument.name">testTitle</stringProp>
+                <stringProp name="Argument.value">MSS E2E Orders and Cart</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="eventTags" elementType="Argument">
+                <stringProp name="Argument.name">eventTags</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="classname">org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient</stringProp>
+        </BackendListener>
+        <org.apache.jorphan.collections.HashTree/>
+      </org.apache.jorphan.collections.HashTree>
+      <com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup guiclass="ThreadGroupGui" testclass="java.lang.ThreadGroup" testname="CTG - config/users/{ACTIVE_ORDER_ID} GET">
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
+          <boolProp reference="../../../com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup/elementProp/boolProp"/>
+          <intProp reference="../../../com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup/elementProp/intProp"/>
+        </elementProp>
+        <stringProp name="Unit">MS</stringProp>
+      </com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup>
+      <org.apache.jorphan.collections.HashTree>
+        <ConstantThroughputTimer reference="../../org.apache.jorphan.collections.HashTree/ConstantThroughputTimer"/>
+        <org.apache.jorphan.collections.HashTree/>
+        <HTTPSampler__ testname="config/users/{ACTIVE_ORDER_ID} GET">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">config.lte.cx-shop-nonprod.us-east-1.aws.sysco.net</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/configs/users/ACTIVE_ORDER_ID?userId=perfma048&amp;namespace=MSS</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSampler__>
+        <org.apache.jorphan.collections.HashTree/>
+        <CSVDataSet reference="../../org.apache.jorphan.collections.HashTree/CSVDataSet"/>
+        <org.apache.jorphan.collections.HashTree/>
+        <BackendListener reference="../../org.apache.jorphan.collections.HashTree/BackendListener"/>
         <org.apache.jorphan.collections.HashTree/>
       </org.apache.jorphan.collections.HashTree>
     </org.apache.jorphan.collections.HashTree>

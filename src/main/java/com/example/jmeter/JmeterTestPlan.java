@@ -19,9 +19,10 @@ import org.apache.jmeter.threads.gui.ThreadGroupGui;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.HashTree;
 import com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup;
-
+import org.apache.jmeter.timers.ConstantThroughputTimer;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import org.apache.jmeter.visualizers.backend.BackendListener;
 
 public class JmeterTestPlan {
     public static final String QUERY_PARAMETER_VAR_NAME = "queryParams";
@@ -66,50 +67,91 @@ public class JmeterTestPlan {
         httpHandler.setMethod(httpMethod);
         httpHandler.setName("Configs/Users GET");
 
+        HTTPSampler httpHandler2 = new HTTPSampler();
+        httpHandler2.setDomain(domainName);
+        httpHandler2.setProtocol("http");
+        httpHandler2.setPath(path);
+        httpHandler2.setMethod(httpMethod);
+        httpHandler2.setName("config/users/{ACTIVE_ORDER_ID} GET");
         //Adding pieces to enable this to be exported to a .jmx and loaded
         //into Jmeter
         httpHandler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         httpHandler.setProperty(TestElement.GUI_CLASS, HttpTestSampleGui.class.getName());
 
+        httpHandler2.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
+        httpHandler2.setProperty(TestElement.GUI_CLASS, HttpTestSampleGui.class.getName());
+
         //LoopController, handles iteration settings
         LoopController loopController = new LoopController();
        // loopController.setLoops(LoopController.INFINITE_LOOP_COUNT);
-        loopController.setLoops(10);
+        loopController.setLoops(loopController.INFINITE_LOOP_COUNT);
         loopController.setFirst(true);
         loopController.initialize();
 
 
-//        ConstantThroughputTimer timer = new ConstantThroughputTimer();
-//        timer.setProperty("throughput", "16.6");
-//        timer.setProperty("calcMode", 2);
-//        timer.setCalcMode(2);
-//        timer.setThroughput(10);
-//        timer.setEnabled(true);
-//        timer.setProperty(TestElement.TEST_CLASS, ConstantThroughputTimer.class.getName());
-//        timer.setProperty(TestElement.GUI_CLASS, TestBeanGUI.class.getName());
+        ConstantThroughputTimer timer = new ConstantThroughputTimer();
+        timer.setEnabled(false);
+        timer.setProperty("throughput", "16.6");
+        timer.setProperty("calcMode", 2);
+        timer.setCalcMode(2);
+        timer.setThroughput(10);
+        timer.setEnabled(true);
+        timer.setProperty(TestElement.TEST_CLASS, ConstantThroughputTimer.class.getName());
+        timer.setProperty(TestElement.GUI_CLASS, TestBeanGUI.class.getName());
 
-//       VariableThroughputTimer timer2 = new VariableThroughputTimer();
-//        timer2.setEnabled(true);
-//        timer2.setName("VariableThroughputTimer");
-//        timer2.setProperty("Start RPS", 1);
-//        timer2.setProperty("End RPS", 1000);
-//        timer2.setProperty("Duration", 60);
-//        timer2.setComment("Table below sets request rate shcedule ant preview graph instantly shows effect of changes.");
-//        timer2.setProperty(TestElement.TEST_CLASS, kg.apc.jmeter.vizualizers.CorrectedResultCollector.class.getName());
-//        timer2.setProperty(TestElement.GUI_CLASS, kg.apc.jmeter.vizualizers.TransactionsPerSecondGui.class.getName());
+       VariableThroughputTimer timer2 = new VariableThroughputTimer();
+        timer2.setEnabled(true);
+        timer2.setName("VariableThroughputTimer");
+        timer2.setProperty("Start RPS", (long) 0.01);
+        timer2.setProperty("End RPS", 5);
+        timer2.setProperty("Duration", 60);
+       // timer2.setComment("Table below sets request rate shcedule ant preview graph instantly shows effect of changes.");
+       // timer2.setProperty(TestElement.TEST_CLASS, kg.apc.jmeter.vizualizers.CorrectedResultCollector.class.getName());
+       // timer2.setProperty(TestElement.GUI_CLASS, kg.apc.jmeter.vizualizers.TransactionsPerSecondGui.class.getName());
 
+      //  TSTFeedback tst = new TSTFeedback();
+
+        BackendListener backendListener = new BackendListener();
+        backendListener.setName("Backend Listner");
+        backendListener.setClassname("org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient");
+        Arguments arguments = new Arguments();
+        arguments.addArgument("influxdbMetricsSender", "org.apache.jmeter.visualizers.backend.influxdb.HttpMetricsSender", "=");
+        arguments.addArgument("influxdbUrl", "http://cx.perf.cx-shop-nonprod.sysco-go.com:8086/write?db=jmeter", "=");
+        arguments.addArgument("application", "MSS", "=");
+        arguments.addArgument("measurement", "jmeter", "=");
+        arguments.addArgument("summaryOnly", "false", "=");
+        arguments.addArgument("samplersRegex", ".*", "=");
+        arguments.addArgument("percentiles", "99;95;90", "=");
+        arguments.addArgument("testTitle", "MSS E2E Orders and Cart", "=");
+        arguments.addArgument("eventTags", "", "=");
+     //   arguments.addArgument("influxdbUrlNew", "http://10.133.13.16:8086/write?db=jmeter", "=");
+        backendListener.setArguments(arguments);
+        backendListener.setProperty(TestElement.TEST_CLASS, backendListener.getClassname());
+    //    backendListener.setProperty(TestElement.GUI_CLASS, BackendListenerGui.class.getName());
 
         ConcurrencyThreadGroup threadGroup =new ConcurrencyThreadGroup();
-        threadGroup.setName("Sample Thread Group");
-        threadGroup.setTargetLevel("10");
-        threadGroup.setRampUp("30");
-        threadGroup.setSteps("5");
-        threadGroup.setUnit("S");
-        threadGroup.setHold("300");
+        threadGroup.setName("CTG - config/users GET");
+     //   threadGroup.setTargetLevel("10");
+       // threadGroup.setRampUp("30");
+       // threadGroup.setSteps("5");
+        threadGroup.setUnit("MS");
+       // threadGroup.setHold("300");
         threadGroup.setSamplerController(loopController);
+   //    threadGroup.
         threadGroup.setProperty(TestElement.TEST_CLASS, ThreadGroup.class.getName());
         threadGroup.setProperty(TestElement.GUI_CLASS, ThreadGroupGui.class.getName());
 
+        ConcurrencyThreadGroup threadGroup2 =new ConcurrencyThreadGroup();
+        threadGroup2.setName("CTG - config/users/{ACTIVE_ORDER_ID} GET");
+        //   threadGroup.setTargetLevel("10");
+        // threadGroup.setRampUp("30");
+        // threadGroup.setSteps("5");
+        threadGroup2.setUnit("MS");
+        // threadGroup.setHold("300");
+        threadGroup2.setSamplerController(loopController);
+        //    threadGroup.
+        threadGroup2.setProperty(TestElement.TEST_CLASS, ThreadGroup.class.getName());
+        threadGroup2.setProperty(TestElement.GUI_CLASS, ThreadGroupGui.class.getName());
 
 
         //Thread groups/user count
@@ -131,10 +173,19 @@ public class JmeterTestPlan {
         testPlan.setUserDefinedVariables((Arguments) new ArgumentsPanel().createTestElement());
 
         hashTree.add(testPlan);
+       // hashTree.add(timer2);
 
         HashTree groupTree = hashTree.add(testPlan, threadGroup);
         groupTree.add(httpHandler);
         groupTree.add(csvConfig);
+        groupTree.add(timer);
+        groupTree.add(backendListener);
+
+        HashTree groupTree2 = hashTree.add(testPlan, threadGroup2);
+        groupTree2.add(httpHandler2);
+        groupTree2.add(csvConfig);
+        groupTree2.add(timer);
+        groupTree2.add(backendListener);
 
         //Save this tes plan as a .jmx for future reference
         SaveService.saveTree(hashTree, new FileOutputStream("src/main/resources/jmxFile.jmx"));

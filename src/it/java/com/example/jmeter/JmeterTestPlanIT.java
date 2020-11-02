@@ -11,6 +11,7 @@ public class JmeterTestPlanIT {
         String domainName = "config.lte.cx-shop-nonprod.us-east-1.aws.sysco.net";
         //String path = "/search?q=" + "${" + JmeterTestPlan.QUERY_PARAMETER_VAR_NAME + "}";
         String path = "/configs/users?userId=" + "${" + JmeterTestPlan.QUERY_PARAMETER_VAR_NAME + "}&namespaces=MSS";
+        String path2 = "/configs/users/ACTIVE_ORDER_ID?userId=perfma048&namespace=MSS";
         String inputCSVFile = "src/it/resources/userid.csv";
 
         @Test
@@ -24,6 +25,12 @@ public class JmeterTestPlanIT {
                     inputCSVFile,
                     domainName,
                     path,
+                    "GET",
+                    1);
+            HashTree createdTree2 = testPlanClient.createTestPLan(
+                    inputCSVFile,
+                    domainName,
+                    path2,
                     "GET",
                     1);
 
